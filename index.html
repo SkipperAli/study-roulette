@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Roulette</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg0: #fff5eb;
+            --bg1: #e8f4fc;
+            --blob-pink: rgba(255, 182, 193, 0.55);
+            --blob-mint: rgba(167, 243, 208, 0.5);
+            --blob-yellow: rgba(254, 240, 138, 0.6);
+            --surface: rgba(255, 255, 255, 0.88);
+            --stroke: rgba(15, 23, 42, 0.1);
+            --text: #1e293b;
+            --muted: #64748b;
+            --accent: #0d9488;
+            --accent-fun: #f472b6;
+            --accent-dim: rgba(13, 148, 136, 0.15);
+            --warn: #e11d48;
+            --sun: #f59e0b;
+            --radius-lg: 28px;
+            --radius-md: 16px;
+            --shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.04);
+            --font: "DM Sans", system-ui, sans-serif;
+            --font-display: "Nunito", var(--font);
+            --mono: "JetBrains Mono", ui-monospace, monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg0);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 12% 18%, var(--blob-yellow), transparent 42%),
+                radial-gradient(circle at 88% 12%, var(--blob-pink), transparent 38%),
+                radial-gradient(circle at 70% 85%, var(--blob-mint), transparent 45%),
+                linear-gradient(165deg, var(--bg0) 0%, #fef3c7 45%, var(--bg1) 100%);
+        }
+
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: clamp(1.25rem, 4vw, 2.5rem);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel {
+            width: 100%;
+            background: var(--surface);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: clamp(1.75rem, 4vw, 2.75rem);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .brand-mark {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fde68a 0%, #fbcfe8 100%);
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 4px 12px rgba(244, 114, 182, 0.2);
+            display: grid;
+            place-items: center;
+        }
+
+        .brand-mark svg { width: 1.1rem; height: 1.1rem; color: #c026d3; }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.75rem, 4vw, 2.15rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        .lede {
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 42rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 0.95rem 1.1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field input::placeholder { color: rgba(100, 116, 139, 0.65); }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-dim);
+        }
+
+        .field { margin-bottom: 1.25rem; }
+
+        .btn-row { display: flex; flex-direction: column; gap: 0.65rem; }
+
+        .btn {
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.95rem 1.25rem;
+            cursor: pointer;
+            transition: transform 0.15s, filter 0.15s, background 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #34d399 0%, #14b8a6 55%, #0d9488 100%);
+            color: #fff;
+            font-family: var(--font-display);
+            box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+
+        .btn-primary:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.65);
+            color: var(--muted);
+            border: 2px dashed rgba(15, 23, 42, 0.12);
+        }
+
+        .btn-ghost:hover { color: var(--text); background: #fff; border-style: solid; }
+
+        .btn-warn {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            color: var(--warn);
+            border: 2px solid rgba(225, 29, 72, 0.35);
+            font-family: var(--font-display);
+        }
+
+        .btn-warn.on {
+            background: linear-gradient(135deg, #fecdd3 0%, #fda4af 100%);
+            border-color: var(--warn);
+            color: #881337;
+        }
+
+        .timer-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+
+        .btn-timer {
+            font-family: var(--font-display);
+            border-radius: 999px;
+            padding: 0.65rem 1.35rem;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-timer:active { transform: scale(0.97); }
+
+        .btn-timer-start {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #422006;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-timer-start:hover:not(:disabled) { filter: brightness(1.05); }
+
+        .btn-timer-pause {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #312e81;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-timer-pause:hover:not(:disabled) { filter: brightness(1.03); }
+
+        .btn-timer:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .timer-card {
+            background: linear-gradient(145deg, #fff 0%, #f0fdfa 55%, #ecfeff 100%);
+            border: 2px solid rgba(45, 212, 191, 0.35);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.35rem;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(13, 148, 136, 0.12);
+        }
+
+        .timer-card.hardcore {
+            background: linear-gradient(145deg, #fff1f2 0%, #fff 50%, #ffe4e6 100%);
+            border-color: rgba(225, 29, 72, 0.35);
+            box-shadow: 0 12px 32px rgba(225, 29, 72, 0.1);
+        }
+
+        .timer-card-top {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--accent);
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .timer-card.hardcore .timer-card-top { color: var(--warn); }
+
+        .timer-display {
+            font-family: var(--mono);
+            font-size: clamp(2.25rem, 6vw, 3rem);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            line-height: 1.1;
+            margin: 0.25rem 0;
+        }
+
+        .timer-display.timer-done {
+            font-size: clamp(1.15rem, 4vw, 1.5rem);
+            color: var(--accent);
+            letter-spacing: normal;
+        }
+
+        .timer-card.hardcore .timer-display.timer-done { color: var(--warn); }
+
+        .timer-meta {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .timer-hint {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+        }
+
+        .step { display: none; }
+        .step.active { display: block; animation: in 0.45s ease-out; }
+
+        @keyframes in {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .spin-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .picker-panel {
+            border-radius: var(--radius-lg);
+            border: 2px solid rgba(15, 23, 42, 0.08);
+            background: linear-gradient(160deg, #fff 0%, #f8fafc 45%, #ecfeff 100%);
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+            padding: 1.35rem 1.25rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .picker-panel::before {
+            content: "";
+            position: absolute;
+            inset: -40% -20%;
+            background: radial-gradient(circle at 30% 20%, rgba(251, 191, 36, 0.2), transparent 45%),
+                radial-gradient(circle at 80% 60%, rgba(244, 114, 182, 0.15), transparent 40%);
+            pointer-events: none;
+        }
+
+        .picker-window {
+            position: relative;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1.1rem;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px dashed rgba(13, 148, 136, 0.35);
+        }
+
+        .picker-panel.hardcore-pick .picker-window {
+            border-color: rgba(225, 29, 72, 0.4);
+            background: rgba(255, 241, 242, 0.65);
+        }
+
+        .picker-label {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .picker-display {
+            font-family: var(--font-display);
+            font-size: clamp(1.35rem, 4vw, 1.85rem);
+            font-weight: 800;
+            color: var(--text);
+            min-height: 2.5rem;
+            line-height: 1.25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .picker-display.is-shuffling {
+            animation: shuffle-wiggle 0.22s ease-in-out infinite;
+        }
+
+        @keyframes shuffle-wiggle {
+            0%, 100% { transform: rotate(-0.6deg) scale(1); }
+            50% { transform: rotate(0.6deg) scale(1.02); }
+        }
+
+        .subject-chips {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .subject-chip {
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            color: #0f172a;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s;
+            opacity: 0.72;
+        }
+
+        .subject-chip.is-active {
+            opacity: 1;
+            transform: scale(1.08);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+            border-color: #fff;
+            z-index: 1;
+        }
+
+        .subject-legend {
+            padding: 1rem 1.15rem;
+            border-radius: var(--radius-md);
+            border: 2px dashed rgba(15, 23, 42, 0.1);
+            background: rgba(255, 255, 255, 0.75);
+        }
+
+        .subject-legend-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 0.7rem;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem 1.25rem;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text);
+            max-width: 100%;
+        }
+
+        .legend-item span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: min(220px, 38vw);
+        }
+
+        @media (max-width: 520px) {
+            .legend-item span:last-child {
+                white-space: normal;
+                max-width: none;
+            }
+        }
+
+        .legend-dot {
+            width: 0.7rem;
+            height: 0.7rem;
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow:
+                0 0 0 2px #fff,
+                0 0 0 3px rgba(15, 23, 42, 0.12);
+        }
+
+        .results {
+            display: grid;
+            gap: 0.85rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 2px solid rgba(15, 23, 42, 0.06);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.2rem;
+            text-align: left;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .card.highlight {
+            border-left: 4px solid var(--accent-fun);
+            background: linear-gradient(90deg, rgba(251, 207, 232, 0.35) 0%, rgba(255, 255, 255, 0.9) 38%);
+        }
+
+        .card.warn-box {
+            border-color: rgba(225, 29, 72, 0.28);
+            background: linear-gradient(135deg, #fff1f2 0%, #fff 100%);
+        }
+
+        .k {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .v { font-size: 1rem; font-weight: 500; }
+
+        .v.task { font-weight: 400; line-height: 1.55; }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.85rem;
+        }
+
+        @media (max-width: 520px) {
+            .row2 { grid-template-columns: 1fr; }
+        }
+
+        .loading-dots::after {
+            content: "";
+            animation: dots 1.2s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ""; }
+            25% { content: "."; }
+            50% { content: ".."; }
+            75% { content: "..."; }
+        }
+
+        .mono-note {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <div class="wrap">
+        <div class="panel">
+            <div id="step1" class="step active">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>
+                        </svg>
+                    </div>
+                    <h1>Study Roulette</h1>
+                </div>
+                <p class="lede">List what you’re studying. Spin to pick a focus.</p>
+
+                <div class="field">
+                    <label for="subjectsInput">Subjects (comma-separated)</label>
+                    <input type="text" id="subjectsInput" placeholder="e.g. Linear Algebra, Python, Organic Chemistry" autocomplete="off">
+                </div>
+
+                <div class="btn-row">
+                    <button type="button" class="btn btn-primary" id="toWheelBtn">Continue</button>
+                </div>
+            </div>
+
+            <div id="step2" class="step">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                    </div>
+                    <h1>Draw</h1>
+                </div>
+                <p class="lede">Toggle hardcore for stricter rules, then draw—one subject is picked at random from your list.</p>
+
+                <div class="spin-section">
+                    <div class="btn-row" style="margin-bottom:1rem">
+                        <button type="button" class="btn btn-warn" id="hcBtn">Hardcore: off</button>
+                        <button type="button" class="btn btn-primary" id="spinBtn">Draw a subject</button>
+                        <button type="button" class="btn btn-ghost" id="backResetBtn">Start over</button>
+                    </div>
+                    <div id="pickerPanel" class="picker-panel" aria-live="polite">
+                        <div class="picker-window">
+                            <span class="picker-label">Today’s focus</span>
+                            <div id="pickerDisplay" class="picker-display">Tap draw to shuffle</div>
+                        </div>
+                        <div id="subjectChips" class="subject-chips"></div>
+                    </div>
+                    <div id="subjectLegend" class="subject-legend" hidden aria-label="Subject colors"></div>
+                    <p class="mono-note" style="margin-top:0.25rem">The pick is random, get started!</p>
+                </div>
+            </div>
+
+            <div id="step3" class="step">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                        </svg>
+                    </div>
+                    <h1 id="destinyTitle">Result</h1>
+                </div>
+                <div id="resultContent" class="results"></div>
+                <div class="btn-row" style="margin-top:1.25rem">
+                    <button type="button" class="btn btn-ghost" id="finalResetBtn">Start over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let subjects = [];
+        let isHardcore = false;
+        /** Set by the draw animation; used when showing the result. */
+        let lastPickIndex = null;
+
+        const studyTimer = {
+            intervalId: null,
+            remaining: 0,
+            running: false,
+        };
+
+        function teardownStudyTimer() {
+            if (studyTimer.intervalId !== null) {
+                clearInterval(studyTimer.intervalId);
+                studyTimer.intervalId = null;
+            }
+            studyTimer.running = false;
+        }
+
+        /** Parse API strings like "45 minutes", "30 min", "60m", or a bare minute count. */
+        function parseDurationToSeconds(timeStr) {
+            const s = String(timeStr || '').toLowerCase().trim();
+            if (!s) return 0;
+            let m = s.match(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)\b/);
+            if (m) return Math.round(parseFloat(m[1]) * 3600);
+            m = s.match(/(\d+(?:\.\d+)?)\s*(?:minutes?|mins?)\b/);
+            if (m) return Math.round(parseFloat(m[1]) * 60);
+            m = s.match(/(\d+(?:\.\d+)?)\s*m\b/);
+            if (m) return Math.round(parseFloat(m[1]) * 60);
+            m = s.match(/^(\d+(?:\.\d+)?)\s*$/);
+            if (m) return Math.round(parseFloat(m[1]) * 60);
+            return 0;
+        }
+
+        function formatTimeMmSs(totalSec) {
+            const sec = Math.max(0, Math.floor(totalSec));
+            const m = Math.floor(sec / 60);
+            const r = sec % 60;
+            return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+        }
+
+        function mountStudyTimer(totalSeconds, hardcore) {
+            teardownStudyTimer();
+            const display = document.getElementById('timerDisplay');
+            const startBtn = document.getElementById('timerStartBtn');
+            const pauseBtn = document.getElementById('timerPauseBtn');
+            if (!display || !startBtn) return;
+
+            studyTimer.remaining = totalSeconds;
+            studyTimer.running = false;
+            display.classList.remove('timer-done');
+            display.textContent = formatTimeMmSs(studyTimer.remaining);
+
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start';
+
+            if (pauseBtn) {
+                pauseBtn.hidden = true;
+                pauseBtn.disabled = true;
+            }
+
+            function onTick() {
+                studyTimer.remaining -= 1;
+                display.textContent = formatTimeMmSs(studyTimer.remaining);
+                if (studyTimer.remaining <= 0) {
+                    teardownStudyTimer();
+                    display.classList.add('timer-done');
+                    display.textContent = "Time's up — nice work!";
+                    startBtn.disabled = true;
+                    if (pauseBtn) {
+                        pauseBtn.hidden = true;
+                        pauseBtn.disabled = true;
+                    }
+                }
+            }
+
+            startBtn.onclick = () => {
+                if (studyTimer.remaining <= 0) return;
+                if (studyTimer.running) return;
+                studyTimer.running = true;
+                startBtn.disabled = true;
+                if (pauseBtn) {
+                    pauseBtn.hidden = false;
+                    pauseBtn.disabled = false;
+                }
+                studyTimer.intervalId = setInterval(onTick, 1000);
+            };
+
+            if (pauseBtn) {
+                pauseBtn.onclick = () => {
+                    if (!studyTimer.running) return;
+                    teardownStudyTimer();
+                    startBtn.disabled = false;
+                    startBtn.textContent = 'Resume';
+                    pauseBtn.hidden = true;
+                    pauseBtn.disabled = true;
+                };
+            }
+        }
+
+        const SUBJECT_PALETTE = [
+            '#2dd4bf', '#a78bfa', '#fb7185', '#fbbf24', '#60a5fa',
+            '#34d399', '#f472b6', '#f97316', '#818cf8', '#22d3ee',
+            '#4ade80', '#e879f9', '#38bdf8', '#fcd34d', '#94a3b8'
+        ];
+
+        function subjectColorAt(index) {
+            return SUBJECT_PALETTE[index % SUBJECT_PALETTE.length];
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function renderSubjectLegend(subjList) {
+            const el = document.getElementById('subjectLegend');
+            if (!subjList.length) {
+                el.hidden = true;
+                el.innerHTML = '';
+                return;
+            }
+            const items = subjList.map((name, i) => {
+                const c = subjectColorAt(i);
+                return `<div class="legend-item"><span class="legend-dot" style="background-color:${c}" aria-hidden="true"></span><span>${escapeHtml(name)}</span></div>`;
+            }).join('');
+            el.innerHTML = `<div class="subject-legend-title">Your subjects</div><div class="legend-items">${items}</div>`;
+            el.hidden = false;
+        }
+
+        function toggleHC() {
+            isHardcore = !isHardcore;
+            const btn = document.getElementById('hcBtn');
+            btn.textContent = isHardcore ? 'Hardcore: on' : 'Hardcore: off';
+            btn.classList.toggle('on', isHardcore);
+            const panel = document.getElementById('pickerPanel');
+            if (panel) panel.classList.toggle('hardcore-pick', isHardcore);
+            syncHardcoreSessionUi();
+        }
+
+        /** Hardcore: no way to bail back to the start. */
+        function syncHardcoreSessionUi() {
+            const back = document.getElementById('backResetBtn');
+            const fin = document.getElementById('finalResetBtn');
+            if (back) back.hidden = isHardcore;
+            if (fin) fin.hidden = isHardcore;
+        }
+
+        function renderSubjectChips(subjList) {
+            const wrap = document.getElementById('subjectChips');
+            wrap.innerHTML = subjList
+                .map((name, i) => {
+                    const c = subjectColorAt(i);
+                    return `<span class="subject-chip" data-idx="${i}" style="background-color:${c}">${escapeHtml(name)}</span>`;
+                })
+                .join('');
+        }
+
+        function setActiveChip(idx) {
+            document.querySelectorAll('.subject-chip').forEach((el) => {
+                el.classList.toggle('is-active', Number(el.dataset.idx) === idx);
+            });
+        }
+
+        function goToWheel() {
+            const input = document.getElementById('subjectsInput').value;
+            subjects = input.split(',').map(s => s.trim()).filter(Boolean);
+
+            if (subjects.length < 2) {
+                alert('Enter at least two subjects, separated by commas.');
+                return;
+            }
+
+            lastPickIndex = null;
+            const panel = document.getElementById('pickerPanel');
+            const display = document.getElementById('pickerDisplay');
+            display.textContent = 'Tap draw to shuffle';
+            display.classList.remove('is-shuffling');
+            panel.classList.toggle('hardcore-pick', isHardcore);
+
+            renderSubjectChips(subjects);
+            renderSubjectLegend(subjects);
+            syncHardcoreSessionUi();
+
+            document.getElementById('spinBtn').disabled = false;
+
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function spinWheel() {
+            const btn = document.getElementById('spinBtn');
+            const display = document.getElementById('pickerDisplay');
+            if (!subjects.length) return;
+            btn.disabled = true;
+
+            const n = subjects.length;
+            const finalIndex = Math.floor(Math.random() * n);
+            const totalTicks = 22 + Math.floor(Math.random() * 16);
+            let tick = 0;
+
+            display.classList.add('is-shuffling');
+
+            function runTick() {
+                tick++;
+                if (tick < totalTicks) {
+                    const jitter = Math.floor(Math.random() * n);
+                    display.textContent = subjects[jitter];
+                    setActiveChip(jitter);
+                    const progress = tick / totalTicks;
+                    const delay = 35 + progress * progress * 220;
+                    setTimeout(runTick, delay);
+                } else {
+                    lastPickIndex = finalIndex;
+                    display.textContent = subjects[finalIndex];
+                    setActiveChip(finalIndex);
+                    display.classList.remove('is-shuffling');
+                    setTimeout(() => showResult(), 520);
+                }
+            }
+            runTick();
+        }
+
+        function showNoConnection(container) {
+            container.innerHTML = `
+                <div class="card warn-box">
+                    <div class="v">No connection</div>
+                </div>
+            `;
+        }
+
+        function showApiError(container, msg) {
+            container.innerHTML = `
+                <div class="card warn-box">
+                    <div class="k">Request error</div>
+                    <div class="v">${escapeHtml(msg)}</div>
+                </div>
+            `;
+        }
+
+        function renderSuccess(container, data, winner) {
+            teardownStudyTimer();
+            const totalSec = parseDurationToSeconds(data.time);
+            const pauseButtonHtml = isHardcore
+                ? ''
+                : '<button type="button" class="btn-timer btn-timer-pause" id="timerPauseBtn" hidden disabled>Pause</button>';
+
+            const timerBlock =
+                totalSec > 0
+                    ? `<section class="timer-card${isHardcore ? ' hardcore' : ''}" aria-label="Session countdown">
+                        <div class="timer-card-top">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                            Session stopwatch
+                        </div>
+                        <div class="timer-display" id="timerDisplay">${escapeHtml(formatTimeMmSs(totalSec))}</div>
+                        <p class="timer-meta">Matches your plan: <strong>${escapeHtml(data.time)}</strong></p>
+                        <div class="timer-actions">
+                            <button type="button" class="btn-timer btn-timer-start" id="timerStartBtn">Start</button>
+                            ${pauseButtonHtml}
+                        </div>
+                        <p class="timer-hint">${isHardcore ? 'Hardcore: focus only — no pausing the clock.' : 'Pause anytime if you need a breather.'}</p>
+                    </section>`
+                    : '';
+
+            const rows = [
+                timerBlock,
+                `<div class="row2">
+                    <div class="card"><div class="k">Subject</div><div class="v">${escapeHtml(data.subject)}</div></div>
+                    <div class="card"><div class="k">Duration</div><div class="v">${escapeHtml(data.time)}</div></div>
+                </div>`,
+                `<div class="card highlight"><div class="k">Topic</div><div class="v">${escapeHtml(data.topic)}</div></div>`,
+                `<div class="card"><div class="k">Action plan</div><div class="v task">${escapeHtml(data.task)}</div></div>`,
+                `<div class="card"><div class="k">Why it matters</div><div class="v task">${escapeHtml(data.why_important)}</div></div>`,
+            ];
+            if (isHardcore && data.hardcore_rule) {
+                rows.push(`<div class="card warn-box"><div class="k">Hardcore rule</div><div class="v task">${escapeHtml(data.hardcore_rule)}</div></div>`);
+            }
+            container.innerHTML = rows.filter(Boolean).join('');
+            if (totalSec > 0) {
+                mountStudyTimer(totalSec, isHardcore);
+            }
+        }
+
+        async function showResult() {
+            const index =
+                lastPickIndex != null && lastPickIndex >= 0 && lastPickIndex < subjects.length
+                    ? lastPickIndex
+                    : Math.floor(Math.random() * subjects.length);
+            lastPickIndex = null;
+            const winner = subjects[index];
+
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+
+            const title = document.getElementById('destinyTitle');
+            const resContainer = document.getElementById('resultContent');
+
+            title.textContent = isHardcore ? 'Hardcore draw' : 'Your draw';
+            title.style.color = isHardcore ? '#e11d48' : 'var(--text)';
+            syncHardcoreSessionUi();
+
+            resContainer.innerHTML = `<div class="card"><div class="k">Subject drawn</div><div class="v">${escapeHtml(winner)}</div><p class="loading-dots mono-note" style="margin-top:0.5rem">Fetching plan from API</p></div>`;
+
+            let res;
+            try {
+                res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subjects,
+                        chosen_subject: winner,
+                        hardcore: isHardcore
+                    })
+                });
+            } catch {
+                showNoConnection(resContainer);
+                return;
+            }
+
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                showNoConnection(resContainer);
+                return;
+            }
+
+            if (res.status === 503 && data.error === 'no_connection') {
+                showNoConnection(resContainer);
+                return;
+            }
+
+            if (!res.ok) {
+                const msg = typeof data.error === 'string' ? data.error : 'Request failed.';
+                showApiError(resContainer, msg);
+                return;
+            }
+
+            const required = ['subject', 'topic', 'time', 'task', 'why_important'];
+            for (const k of required) {
+                if (data[k] == null || String(data[k]).trim() === '') {
+                    showNoConnection(resContainer);
+                    return;
+                }
+            }
+            if (isHardcore && (!data.hardcore_rule || !String(data.hardcore_rule).trim())) {
+                showNoConnection(resContainer);
+                return;
+            }
+
+            renderSuccess(resContainer, data, winner);
+        }
+
+        document.getElementById('toWheelBtn').addEventListener('click', goToWheel);
+        document.getElementById('hcBtn').addEventListener('click', toggleHC);
+        document.getElementById('spinBtn').addEventListener('click', spinWheel);
+        document.getElementById('backResetBtn').addEventListener('click', () => location.reload());
+        document.getElementById('finalResetBtn').addEventListener('click', () => location.reload());
+    </script>
+</body>
+</html>
